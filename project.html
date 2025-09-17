@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Task Manager</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            color: #333;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 20px;
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        #task-form {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        input, textarea {
+            padding: 10px;
+            margin: 5px 0;
+            font-size: 16px;
+            border: 1px solid #ccc;
+        }
+
+        button {
+            padding: 10px;
+            font-size: 16px;
+            background-color: #5c6bc0;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+
+        button:hover {
+            background-color: #3f51b5;
+        }
+
+        #task-list {
+            margin-top: 20px;
+        }
+
+        ul {
+            list-style-type: none;
+        }
+
+        li {
+            background-color: #fff;
+            margin: 10px 0;
+            padding: 10px;
+            border-radius: 5px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        button.delete-btn {
+            background-color: red;
+            border: none;
+            padding: 5px 10px;
+            color: white;
+            cursor: pointer;
+        }
+
+        button.delete-btn:hover {
+            background-color: darkred;
+        }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Task Manager</h1>
+    </header>
+
+    <section id="task-form">
+        <input type="text" id="task-title" placeholder="Task title" />
+        <textarea id="task-desc" placeholder="Task description"></textarea>
+        <button id="add-task-btn">Add Task</button>
+    </section>
+
+    <section id="task-list">
+        <h2>Task List</h2>
+        <ul id="tasks"></ul>
+    </section>
+
+    <footer>
+        <p>Made by Your Name | &copy; 2025</p>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const taskTitleInput = document.getElementById('task-title');
+            const taskDescInput = document.getElementById('task-desc');
+            const addTaskButton = document.getElementById('add-task-btn');
+            const taskList = document.getElementById('tasks');
+
+            // Load tasks from localStorage if available
+            let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+            // Display tasks
+            function displayTasks() {
+                taskList.innerHTML = '';
+                tasks.forEach((task, index) => {
+                    const li = document.createElement('li');
+                    li.classList.toggle('completed', task.completed);
+
+                    li.innerHTML = `
+                        <div>
+                            <strong>${task.title}</strong><br>
+                            <small>${task.description}</small>
+                        </div>
+                        <div>
+                            <button class="delete-btn" onclick="deleteTask(${index})">Delete</button>
+                            <button onclick="toggleTaskComplete(${index})">${task.completed ? 'Undo' : 'Complete'}</button>
+                        </div>
+                    `;
+
+                    taskList.appendChild(li);
+                });
+            }
+
+            // Add a task
+            addTaskButton.addEventListener('click', () => {
+                const title = taskTitleInput.value.trim();
+                const description = taskDescInput.value.trim();
+
+                if (title && description) {
+                    const newTask = {
+                        title,
+                        description,
+                        completed: false
+                    };
+                    tasks.push(newTask);
+                    localStorage.setItem('tasks', JSON.stringify(tasks));
+                    taskTitleInput.value = '';
+                    taskDescInput.value = '';
+                    displayTasks();
+                } else {
+                    alert('Please fill in both title and description');
+                }
+            });
+
+            // Toggle task completion
+            window.toggleTaskComplete = (index) => {
+                tasks[index].completed = !tasks[index].completed;
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                displayTasks();
+            };
+
+            // Delete a task
+            window.deleteTask = (index) => {
+                tasks.splice(index, 1);
+                localStorage.setItem('tasks', JSON.stringify(tasks));
+                displayTasks();
+            };
+
+            // Initial display of tasks
+            displayTasks();
+        });
+    </script>
+</body>
+</html>
